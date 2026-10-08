@@ -2,6 +2,9 @@ name: Cucumber
 
 on:
   pull_request:
+  schedule:
+    # 07:00 Asia/Kolkata (IST, UTC+5:30). GitHub cron is UTC.
+    - cron: "30 1 * * *"
   workflow_dispatch:
     inputs:
       tags:
@@ -17,6 +20,17 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      PB_URL: ${{ secrets.PB_URL }}
+      PB_BROWSER: Chrome
+      PB_OPERATOR_USERNAME: ${{ secrets.PB_OPERATOR_USERNAME }}
+      PB_OPERATOR_PASSWORD: ${{ secrets.PB_OPERATOR_PASSWORD }}
+      PB_GUEST_USERNAME: ${{ secrets.PB_GUEST_USERNAME }}
+      PB_GUEST_PASSWORD: ${{ secrets.PB_GUEST_PASSWORD }}
+      PB_ADMIN_USERNAME: ${{ secrets.PB_ADMIN_USERNAME }}
+      PB_ADMIN_PASSWORD: ${{ secrets.PB_ADMIN_PASSWORD }}
+      PB_INVALID_USERNAME: ${{ secrets.PB_INVALID_USERNAME }}
+      PB_INVALID_PASSWORD: ${{ secrets.PB_INVALID_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,32 +47,14 @@ jobs:
 
       - name: Run smoke tests
         if: github.event_name == 'pull_request'
-        env:
-          PB_URL: ${{ secrets.PB_URL }}
-          PB_BROWSER: Chrome
-          PB_OPERATOR_USERNAME: ${{ secrets.PB_OPERATOR_USERNAME }}
-          PB_OPERATOR_PASSWORD: ${{ secrets.PB_OPERATOR_PASSWORD }}
-          PB_GUEST_USERNAME: ${{ secrets.PB_GUEST_USERNAME }}
-          PB_GUEST_PASSWORD: ${{ secrets.PB_GUEST_PASSWORD }}
-          PB_ADMIN_USERNAME: ${{ secrets.PB_ADMIN_USERNAME }}
-          PB_ADMIN_PASSWORD: ${{ secrets.PB_ADMIN_PASSWORD }}
-          PB_INVALID_USERNAME: ${{ secrets.PB_INVALID_USERNAME }}
-          PB_INVALID_PASSWORD: ${{ secrets.PB_INVALID_PASSWORD }}
         run: mvn -B test -Psmoke -Dheadless=true
+
+      - name: Run daily regression
+        if: github.event_name == 'schedule'
+        run: mvn -B test -Pregression -Dheadless=true
 
       - name: Run selected tags
         if: github.event_name == 'workflow_dispatch'
-        env:
-          PB_URL: ${{ secrets.PB_URL }}
-          PB_BROWSER: Chrome
-          PB_OPERATOR_USERNAME: ${{ secrets.PB_OPERATOR_USERNAME }}
-          PB_OPERATOR_PASSWORD: ${{ secrets.PB_OPERATOR_PASSWORD }}
-          PB_GUEST_USERNAME: ${{ secrets.PB_GUEST_USERNAME }}
-          PB_GUEST_PASSWORD: ${{ secrets.PB_GUEST_PASSWORD }}
-          PB_ADMIN_USERNAME: ${{ secrets.PB_ADMIN_USERNAME }}
-          PB_ADMIN_PASSWORD: ${{ secrets.PB_ADMIN_PASSWORD }}
-          PB_INVALID_USERNAME: ${{ secrets.PB_INVALID_USERNAME }}
-          PB_INVALID_PASSWORD: ${{ secrets.PB_INVALID_PASSWORD }}
         run: mvn -B test -Dheadless=true -Dcucumber.tags="${{ inputs.tags }}"
 
       - name: Upload Allure results
@@ -70,11 +66,11 @@ jobs:
           if-no-files-found: warn
 
       - name: Generate Allure report
-        if: failure() || github.event_name == 'workflow_dispatch'
+        if: failure() || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: mvn -B allure:report
 
       - name: Upload Allure report
-        if: failure() || github.event_name == 'workflow_dispatch'
+        if: failure() || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         uses: actions/upload-artifact@v4
         with:
           name: allure-report

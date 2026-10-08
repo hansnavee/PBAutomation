@@ -68,12 +68,12 @@ Linux or macOS:
 ./scripts/allure-report.sh report
 ```
 
-`mvn test` with no tag runs every scenario. Pull requests on GitHub run `@smoke` only. Run `@regression` with the **Cucumber** workflow's manual dispatch and a tag expression such as `@regression`.
+`mvn test` with no tag runs every scenario. Pull requests on GitHub run `@smoke` only. The **Cucumber** workflow also runs `@regression` every day at 07:00 IST. You can start it manually with a tag expression such as `@regression`.
 
 ## Tags
 
 - `@smoke` — short path used by pull-request CI
-- `@regression` — full suite, manual workflow
+- `@regression` — full suite, daily at 07:00 IST and manual workflow
 - `@login`, `@scenarios`, `@treatment_pool`, `@password_reset` — domain filters
 - `@cleanup` — scenario creates data that is deleted after a pass
 
