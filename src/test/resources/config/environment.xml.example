@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copy to environment.local.xml (gitignored) or export the env vars below.
+  Env vars override both environment.xml and environment.local.xml.
+
+  PB_URL
+  PB_BROWSER
+  PB_OPERATOR_USERNAME / PB_OPERATOR_PASSWORD
+  PB_GUEST_USERNAME / PB_GUEST_PASSWORD
+  PB_ADMIN_USERNAME / PB_ADMIN_PASSWORD
+  PB_INVALID_USERNAME / PB_INVALID_PASSWORD
+-->
+<Configuration>
+    <BrowserName>Chrome</BrowserName>
+    <URL>https://test.pbweb.info/MicrosoftIdentity/Account/SignIn</URL>
+    <Users>
+        <User>
+            <Role>Operator User</Role>
+            <Username>${PB_OPERATOR_USERNAME}</Username>
+            <Password>${PB_OPERATOR_PASSWORD}</Password>
+        </User>
+        <User>
+            <Role>Guest User</Role>
+            <Username>${PB_GUEST_USERNAME}</Username>
+            <Password>${PB_GUEST_PASSWORD}</Password>
+        </User>
+        <User>
+            <Role>Admin User</Role>
+            <Username>${PB_ADMIN_USERNAME}</Username>
+            <Password>${PB_ADMIN_PASSWORD}</Password>
+        </User>
+        <User>
+            <Role>Invalid User</Role>
+            <Username>${PB_INVALID_USERNAME}</Username>
+            <Password>${PB_INVALID_PASSWORD}</Password>
+        </User>
+    </Users>
+</Configuration>

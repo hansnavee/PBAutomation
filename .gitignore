@@ -1,0 +1,11 @@
+target/
+logs/
+downloads/
+*.log
+nohup.out
+
+src/test/resources/config/environment.local.xml
+
+.allure/
+allure-results/
+allure-report/
