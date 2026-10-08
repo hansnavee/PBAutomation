@@ -17,27 +17,7 @@ Cucumber 7 and Selenium 4 tests for PB Web. Java 17. ChromeDriver is resolved by
 
 ## Credentials
 
-Passwords are not stored in the repo. Emails differ by environment and every role shares one password.
-
-Copy `src/test/resources/config/environment.xml.example` to `src/test/resources/config/environment.local.xml` (gitignored) and put each environment's emails there. Set `PB_PASSWORD` once. The sign-in URL selects the environment: a manual workflow run passes `application_url`, which is `PB_URL`, and the matching `<Environment>` supplies the emails.
-
-| Variable | Purpose |
-| --- | --- |
-| `PB_URL` | Sign-in URL. Chooses the environment with the same URL |
-| `PB_ENV` | `test` or `stage`, when you want to choose the environment by name |
-| `PB_PASSWORD` | Shared password for every role |
-| `PB_BROWSER` | `Chrome` or `Firefox` |
-| `PB_OPERATOR_USERNAME` | Operator email on `test` |
-| `PB_GUEST_USERNAME` | Guest email on `test` |
-| `PB_ADMIN_USERNAME` | Admin email on `test` |
-| `PB_INVALID_USERNAME` | Invalid email on `test` |
-| `PB_STAGE_URL` | Stage sign-in URL |
-| `PB_STAGE_OPERATOR_USERNAME` | Operator email on `stage` |
-| `PB_STAGE_GUEST_USERNAME` | Guest email on `stage` |
-| `PB_STAGE_ADMIN_USERNAME` | Admin email on `stage` |
-| `PB_STAGE_INVALID_USERNAME` | Invalid email on `stage` |
-
-A role-specific variable such as `PB_OPERATOR_PASSWORD` still overrides `PB_PASSWORD` for that role. GitHub Actions reads the same names from repository secrets. Rotate any password that was previously committed in `EnvironmentConstants.xml`.
+Emails and the shared password are read from `src/test/resources/config/users.properties`. A manual workflow run passes `application_url`. A `test.pbweb.info` URL loads the test users, and a `demo.pbweb.info` URL loads the demo users. `PB_ENV=test` or `PB_ENV=demo` selects the same sets by name. `PB_BROWSER` is `Chrome` or `Firefox`.
 
 ## Run tests
 

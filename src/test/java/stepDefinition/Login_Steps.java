@@ -30,7 +30,7 @@ public class Login_Steps extends Base_Steps{
     private static void requireCredentials(String role, String username, String password) {
         if (username.isEmpty() || password.isEmpty()) {
             Assert.fail("Missing email or password for role '" + role
-                    + "'. Set PB_PASSWORD and the email for that environment in config.");
+                    + "'. Set them in src/test/resources/config/users.properties.");
         }
     }
 

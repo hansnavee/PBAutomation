@@ -24,6 +24,27 @@
                 </User>
             </Users>
         </Environment>
+        <Environment name="demo">
+            <URL>https://demo.pbweb.info/MicrosoftIdentity/Account/SignIn</URL>
+            <Users>
+                <User>
+                    <Role>Operator User</Role>
+                    <Username></Username>
+                </User>
+                <User>
+                    <Role>Guest User</Role>
+                    <Username></Username>
+                </User>
+                <User>
+                    <Role>Admin User</Role>
+                    <Username></Username>
+                </User>
+                <User>
+                    <Role>Invalid User</Role>
+                    <Username></Username>
+                </User>
+            </Users>
+        </Environment>
         <Environment name="stage">
             <URL>${PB_STAGE_URL}</URL>
             <Users>

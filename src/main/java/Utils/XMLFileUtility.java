@@ -13,10 +13,15 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class XMLFileUtility {
 
@@ -46,7 +51,11 @@ public class XMLFileUtility {
             if (username.isEmpty() && (rawUsername.isEmpty() || !rawUsername.startsWith("${"))) {
                 username = getenv(prefix + "_USERNAME");
             }
+            username = firstNonEmpty(usersValue(environmentName, role, "username"), username);
             String password = firstNonEmpty(
+                    usersValue(environmentName, role, "password"),
+                    usersValue(environmentName, "", "password"),
+                    usersValue("", "", "password"),
                     getenv(prefix + "_PASSWORD"),
                     user == null ? "" : resolve(text(user, "Password")),
                     sharedPassword(document)
@@ -92,6 +101,9 @@ public class XMLFileUtility {
             Element environment = selectedEnvironment(document);
             if (environment != null) {
                 url = resolve(text(environment, "URL"));
+                if (url.isEmpty()) {
+                    url = usersValue(environmentName(environment), "", "url");
+                }
             }
             if (url.isEmpty()) {
                 url = directChildText(document.getDocumentElement(), "URL");
@@ -155,8 +167,9 @@ public class XMLFileUtility {
             return null;
         }
 
-        String requestedName = getenv("PB_ENV");
+        String requestedName = canonicalEnvironment(getenv("PB_ENV"));
         String requestedUrl = normalizeUrl(getenv("PB_URL"));
+        String requestedHost = hostOf(requestedUrl);
         Element firstUsable = null;
         Element urlMatch = null;
 
@@ -169,12 +182,16 @@ public class XMLFileUtility {
             if (firstUsable == null && !resolve(text(environment, "URL")).isEmpty()) {
                 firstUsable = environment;
             }
-            if (!requestedName.isEmpty() && requestedName.equalsIgnoreCase(environmentName(environment))) {
+            String name = canonicalEnvironment(environmentName(environment));
+            if (!requestedName.isEmpty() && requestedName.equalsIgnoreCase(name)) {
                 logger.info("Selected environment '{}'", environmentName(environment));
                 return environment;
             }
-            if (urlMatch == null && !requestedUrl.isEmpty()
-                    && requestedUrl.equals(normalizeUrl(resolve(text(environment, "URL"))))) {
+            String environmentUrl = normalizeUrl(resolve(text(environment, "URL")));
+            if (urlMatch == null && !requestedUrl.isEmpty() && requestedUrl.equals(environmentUrl)) {
+                urlMatch = environment;
+            }
+            if (urlMatch == null && !requestedHost.isEmpty() && requestedHost.startsWith(name + ".")) {
                 urlMatch = environment;
             }
         }
@@ -206,7 +223,55 @@ public class XMLFileUtility {
     }
 
     private static String sharedPassword(Document document) {
-        return firstNonEmpty(getenv("PB_PASSWORD"), directChildText(document.getDocumentElement(), "Password"));
+        return firstNonEmpty(
+                usersValue("", "", "password"),
+                getenv("PB_PASSWORD"),
+                directChildText(document.getDocumentElement(), "Password")
+        );
+    }
+
+    private static Properties userProperties;
+
+    private static String usersValue(String environment, String role, String field) {
+        Properties properties = userProperties();
+        String key = field;
+        if (!environment.isEmpty() && !role.isEmpty()) {
+            key = environment.toLowerCase() + "." + roleKey(role) + "." + field;
+        } else if (!environment.isEmpty()) {
+            key = environment.toLowerCase() + "." + field;
+        }
+        String value = properties.getProperty(key);
+        return value == null ? "" : value.trim();
+    }
+
+    private static String roleKey(String role) {
+        return switch (role.trim().toLowerCase()) {
+            case "operator user" -> "operator";
+            case "guest user" -> "guest";
+            case "admin user" -> "admin";
+            case "invalid user" -> "invalid";
+            default -> role.trim().toLowerCase().replace(' ', '-');
+        };
+    }
+
+    private static Properties userProperties() {
+        if (userProperties != null) {
+            return userProperties;
+        }
+        Properties properties = new Properties();
+        File file = Paths.get(
+                System.getProperty("user.dir"),
+                "src", "test", "resources", "config", "users.properties"
+        ).toFile();
+        if (file.exists()) {
+            try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+                properties.load(reader);
+            } catch (IOException e) {
+                logger.error("Error while reading {}: {}", file.getAbsolutePath(), e.getMessage(), e);
+            }
+        }
+        userProperties = properties;
+        return properties;
     }
 
     private static String environmentName(Element environment) {
@@ -232,6 +297,30 @@ public class XMLFileUtility {
             }
         }
         return "";
+    }
+
+    private static String canonicalEnvironment(String name) {
+        if (name == null) {
+            return "";
+        }
+        return switch (name.trim().toLowerCase()) {
+            case "test", "testenv" -> "test";
+            case "demo", "demoenv" -> "demo";
+            default -> name.trim().toLowerCase();
+        };
+    }
+
+    private static String hostOf(String url) {
+        if (url == null || url.isBlank()) {
+            return "";
+        }
+        try {
+            String withScheme = url.contains("://") ? url : "https://" + url;
+            String host = java.net.URI.create(withScheme).getHost();
+            return host == null ? "" : host.toLowerCase();
+        } catch (IllegalArgumentException e) {
+            return "";
+        }
     }
 
     private static String normalizeUrl(String url) {
