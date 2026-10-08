@@ -68,7 +68,7 @@ Linux or macOS:
 ./scripts/allure-report.sh report
 ```
 
-`mvn test` with no tag runs every scenario. Pull requests on GitHub run `@smoke` only. The **Cucumber** workflow also runs `@regression` every day at 07:00 IST. You can start it manually with a tag expression such as `@regression`.
+`mvn test` with no tag runs every scenario. Pull requests on GitHub run `@smoke` only. The **Cucumber** workflow also runs `@regression` every day at 07:00 IST. A manual run asks for a tag expression and an application sign-in URL. That URL is passed to the tests as `PB_URL`. Scheduled and pull-request runs keep using the `PB_URL` repository secret.
 
 ## Tags
 

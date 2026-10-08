@@ -12,6 +12,11 @@ on:
         required: false
         default: "@smoke"
         type: string
+      application_url:
+        description: Application sign-in URL (sets PB_URL for this run)
+        required: true
+        default: "https://test.pbweb.info/MicrosoftIdentity/Account/SignIn"
+        type: string
 
 concurrency:
   group: cucumber-${{ github.ref }}
@@ -55,6 +60,8 @@ jobs:
 
       - name: Run selected tags
         if: github.event_name == 'workflow_dispatch'
+        env:
+          PB_URL: ${{ inputs.application_url }}
         run: mvn -B test -Dheadless=true -Dcucumber.tags="${{ inputs.tags }}"
 
       - name: Upload Allure results
