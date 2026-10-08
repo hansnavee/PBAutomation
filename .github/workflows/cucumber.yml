@@ -75,13 +75,35 @@ jobs:
           if-no-files-found: warn
 
       - name: Generate Allure report
-        if: failure() || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: success() || failure()
         run: mvn -B allure:report
 
       - name: Upload Allure report
-        if: failure() || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        id: allure-report
+        if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: target/site/allure-maven-plugin
           if-no-files-found: warn
+
+      - name: Notify Google Chat
+        if: success() || failure()
+        continue-on-error: true
+        env:
+          GOOGLE_CHAT_SPACE: ${{ secrets.GOOGLE_CHAT_SPACE }}
+          GOOGLE_CHAT_CREDENTIALS: ${{ secrets.GOOGLE_CHAT_CREDENTIALS }}
+          GOOGLE_CHAT_USER: ${{ secrets.GOOGLE_CHAT_USER }}
+          ALLURE_RESULTS: target/allure-results
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          REPORT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.allure-report.outputs.artifact-id }}
+          SUITE_NAME: Cucumber
+          RUN_EVENT: ${{ github.event_name }}
+        run: |
+          if [ -z "$GOOGLE_CHAT_SPACE" ] || [ -z "$GOOGLE_CHAT_CREDENTIALS" ]; then
+            echo "Google Chat secrets are not set. Skipping notification."
+            python3 scripts/notify_google_chat.py
+            exit 0
+          fi
+          python3 -m pip install --quiet google-auth requests
+          python3 scripts/notify_google_chat.py

@@ -9,3 +9,6 @@ src/test/resources/config/environment.local.xml
 .allure/
 allure-results/
 allure-report/
+
+scripts/client_secret.json
+scripts/token.json

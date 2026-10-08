@@ -86,7 +86,28 @@ Linux or macOS:
 
 ## Reports
 
-Allure results are written to `target/allure-results`. Generate the HTML report with `mvn allure:report` (output under `target/site/allure-maven-plugin`) or open it with `mvn allure:serve`. The GitHub workflow uploads results on every run and the HTML report when a run fails or is started manually.
+Allure results are written to `target/allure-results`. Generate the HTML report with `mvn allure:report` (output under `target/site/allure-maven-plugin`) or open it with `mvn allure:serve`. The GitHub workflow uploads Allure results on every run and the HTML report after the tests finish. It then posts a summary to Google Chat through the Chat API (not an incoming webhook): total, executed, passed, failed, skipped, failed scenario titles, the workflow run link, and the Allure report link.
+
+Add these repository secrets before the message can be sent:
+
+| Secret | Purpose |
+| --- | --- |
+| `GOOGLE_CHAT_SPACE` | Space id, `spaces/AAAA...`, from the space URL |
+| `GOOGLE_CHAT_CREDENTIALS` | Authorized-user JSON: `client_id`, `client_secret`, and `refresh_token` |
+| `GOOGLE_CHAT_USER` | Only for a service account. Workspace user email to impersonate |
+
+The message is sent with `https://www.googleapis.com/auth/chat.messages.create`. That scope is in Google's OAuth catalog. `https://www.googleapis.com/auth/chat.bot` is not, and the token endpoint rejects it.
+
+In Google Cloud, enable the Google Chat API and create an OAuth client (Desktop). On the consent screen, add the scope above. If the project belongs to your Workspace domain, set the app to Internal so the refresh token stays valid. Run this once on your machine and paste the printed JSON into `GOOGLE_CHAT_CREDENTIALS`. The Google account you sign in with must already be a member of the space.
+
+```
+pip install google-auth-oauthlib
+python scripts/authorize_google_chat.py path\to\client_secret.json
+```
+
+A service account can be used instead when a Workspace admin has authorized domain-wide delegation for `chat.messages.create`. Put the service-account JSON in `GOOGLE_CHAT_CREDENTIALS` and the member's email in `GOOGLE_CHAT_USER`. Do not register `chat.bot` as the delegation scope.
+
+The run link opens the workflow run. The report link opens the `allure-report` artifact on that run.
 
 ## Import workbooks
 
