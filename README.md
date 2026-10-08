@@ -10,14 +10,14 @@ Cucumber 7 and Selenium 4 tests for PB Web. Java 17. ChromeDriver is resolved by
 - `src/test/java/Hooks` — `PBHooks` and `TestRunner`
 - `src/test/java/stepDefinition` — step definitions
 - `src/test/resources/Feature` — feature files
-- `src/test/resources/config` — environment config (no secrets in git)
+- `src/test/resources/config` — environment config and user emails. The shared password stays in `PB_PASSWORD`
 - `src/test/resources/testdata` — import workbooks, when present
 - `scripts` — local run and Allure helpers
 - `.github/workflows/cucumber.yml` — pull-request smoke and manual tag runs
 
 ## Credentials
 
-Emails and the shared password are read from `src/test/resources/config/users.properties`. A manual workflow run passes `application_url`. A `test.pbweb.info` URL loads the test users, and a `demo.pbweb.info` URL loads the demo users. `PB_ENV=test` or `PB_ENV=demo` selects the same sets by name. `PB_BROWSER` is `Chrome` or `Firefox`.
+Emails are read from `src/test/resources/config/users.properties`. The shared password is the `PB_PASSWORD` environment variable. On GitHub Actions that value is the `PB_PASSWORD` repository secret, and it is not stored in the repo. A manual workflow run passes `application_url`. A `test.pbweb.info` URL loads the test users, and a `demo.pbweb.info` URL loads the demo users. `PB_ENV=test` or `PB_ENV=demo` selects the same sets by name. `PB_BROWSER` is `Chrome` or `Firefox`.
 
 ## Run tests
 

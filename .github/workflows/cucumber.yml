@@ -27,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PB_BROWSER: Chrome
+      PB_PASSWORD: ${{ secrets.PB_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
