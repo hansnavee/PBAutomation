@@ -17,7 +17,7 @@ Cucumber 7 and Selenium 4 tests for PB Web. Java 17. ChromeDriver is resolved by
 
 ## Credentials
 
-Emails are read from `src/test/resources/config/users.properties`. The shared password is the `PB_PASSWORD` environment variable. On GitHub Actions that value is the `PB_PASSWORD` repository secret, and it is not stored in the repo. A manual workflow run passes `application_url`. A `test.pbweb.info` URL loads the test users, and a `demo.pbweb.info` URL loads the demo users. `PB_ENV=test` or `PB_ENV=demo` selects the same sets by name. `PB_BROWSER` is `Chrome` or `Firefox`.
+Emails are read from `src/test/resources/config/users.properties`. The shared password is the `PB_PASSWORD` environment variable. On GitHub Actions that value is the `PB_PASSWORD` repository secret, and it is not stored in the repo. A manual workflow run passes `application_url`. The default is `https://demo.pbweb.info/MicrosoftIdentity/Account/SignIn`, because `https://test.pbweb.info/MicrosoftIdentity/Account/SignIn` returns 404. A `demo.pbweb.info` URL loads the demo users. A `test.pbweb.info` URL loads the test users and starts from `https://test.pbweb.info/Account/Login`. `PB_ENV=test` or `PB_ENV=demo` selects the same sets by name. `PB_BROWSER` is `Chrome` or `Firefox`.
 
 ## Run tests
 
@@ -91,7 +91,7 @@ The run link opens the workflow run. The report link opens the `allure-report` a
 
 ## Import workbooks
 
-These files are loaded from `src/test/resources/testdata/` and are not in the repo:
+These files are in `src/test/resources/testdata/`:
 
 - `BAMS_TestData.xlsx`
 - `PAMS_TestData.xlsx`
@@ -99,7 +99,7 @@ These files are loaded from `src/test/resources/testdata/` and are not in the re
 - `PAMS_TestData_With_Multiple_Tabs.xlsx`
 - `Budget_Constraints_TestData.xlsx`
 
-Scenarios that import those files are not tagged `@smoke`. Add the real workbooks before running them.
+Scenarios that import those files are not tagged `@smoke`.
 
 ## Notes
 

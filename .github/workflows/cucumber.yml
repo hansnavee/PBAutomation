@@ -15,7 +15,7 @@ on:
       application_url:
         description: Application sign-in URL (sets PB_URL for this run)
         required: true
-        default: "https://test.pbweb.info/MicrosoftIdentity/Account/SignIn"
+        default: "https://demo.pbweb.info/MicrosoftIdentity/Account/SignIn"
         type: string
 
 concurrency:

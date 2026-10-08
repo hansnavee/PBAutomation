@@ -4,7 +4,7 @@
     <Password>${PB_PASSWORD}</Password>
     <Environments>
         <Environment name="test">
-            <URL>https://test.pbweb.info/MicrosoftIdentity/Account/SignIn</URL>
+            <URL>https://test.pbweb.info/Account/Login</URL>
             <Users>
                 <User>
                     <Role>Operator User</Role>

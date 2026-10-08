@@ -184,4 +184,25 @@ public List<WebElement> untilAllElementsPresent(
             )
         );
     }
+
+    public WebElement findFirstVisible(Duration timeout, By... locators) {
+        WebDriverWait wait = new WebDriverWait(driver, timeout);
+        wait.pollingEvery(Duration.ofMillis(250));
+        wait.ignoring(NoSuchElementException.class);
+        wait.ignoring(StaleElementReferenceException.class);
+        return wait.until(webDriver -> {
+            for (By locator : locators) {
+                for (WebElement element : webDriver.findElements(locator)) {
+                    try {
+                        if (element.isDisplayed()) {
+                            return element;
+                        }
+                    } catch (StaleElementReferenceException ignored) {
+                        // The node was redrawn. Try the next match.
+                    }
+                }
+            }
+            return null;
+        });
+    }
 }

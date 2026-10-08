@@ -5,19 +5,20 @@ import PageObjects.models.LocatorsType;
 import Utils.AllureLogger;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.io.ByteArrayInputStream;
+import java.time.Duration;
 
 public class LoginPage extends Pages {
 
-    private final String EmailField = LoginLocators.UsernameOrEmailByName;
-    private final String PasswordField = LoginLocators.PasswordByID;
     private final String SignInButton = LoginLocators.SignInByXpath;
     private final String ForgotYourPasswordLink = LoginLocators.ForgotYourPasswordLinkByXpath;
     private final String EmailValidationMessage = LoginLocators.EmailFieldValidationByXpath;
@@ -49,7 +50,7 @@ public class LoginPage extends Pages {
             enterEmail(email);
             enterPassword(password);
 
-            WebElement signInBtn = wait.untilElementClickable(LocatorsType.ByXpath, SignInButton);
+            WebElement signInBtn = signInButton();
             Allure.step("Clicking on Sign In button");
             signInBtn.click();
             AllureLogger.passStep("Clicked Sign In button successfully");
@@ -86,12 +87,8 @@ public class LoginPage extends Pages {
 
     @Step("Entering email: {email}")
     public void enterEmail(String email) {
-        WebElement emailField = wait.untilElementVisible(LocatorsType.ByID, EmailField);
-        if (emailField == null) {
-            AllureLogger.failStep("Email field not found", new Exception("Element null"));
-            attachScreenshot("Email field missing");
-            return;
-        }
+        openCredentialForm();
+        WebElement emailField = emailField();
         Allure.step("Typing email: " + email);
         emailField.clear();
         emailField.sendKeys(email);
@@ -100,16 +97,57 @@ public class LoginPage extends Pages {
 
     @Step("Entering password")
     public void enterPassword(String password) {
-        WebElement passwordField = wait.untilElementVisible(LocatorsType.ByID, PasswordField);
-        if (passwordField == null) {
-            AllureLogger.failStep("Password field not found", new Exception("Element null"));
-            attachScreenshot("Password field missing");
-            return;
-        }
+        WebElement passwordField = passwordField();
         Allure.step("Typing password");
         passwordField.clear();
         passwordField.sendKeys(password);
         AllureLogger.passStep("Entered password successfully");
+    }
+
+    private void openCredentialForm() {
+        try {
+            emailField(Duration.ofSeconds(25));
+        } catch (TimeoutException notOnCredentialPage) {
+            WebElement azureSignIn = wait.findFirstVisible(
+                    Duration.ofSeconds(5),
+                    By.cssSelector("button[name='provider'][value='AzureAd']"),
+                    By.cssSelector("button.btn-signin-nav")
+            );
+            azureSignIn.click();
+        }
+    }
+
+    private WebElement emailField() {
+        return emailField(Duration.ofSeconds(30));
+    }
+
+    private WebElement emailField(Duration timeout) {
+        return wait.findFirstVisible(
+                timeout,
+                By.id("email"),
+                By.name("email"),
+                By.id("signInName"),
+                By.name("loginfmt"),
+                By.id("i0116")
+        );
+    }
+
+    private WebElement passwordField() {
+        try {
+            return wait.findFirstVisible(Duration.ofSeconds(8), By.id("password"), By.name("passwd"), By.id("i0118"));
+        } catch (TimeoutException passwordNotShownYet) {
+            signInButton().click();
+            return wait.findFirstVisible(Duration.ofSeconds(20), By.id("password"), By.name("passwd"), By.id("i0118"));
+        }
+    }
+
+    private WebElement signInButton() {
+        return wait.findFirstVisible(
+                Duration.ofSeconds(15),
+                By.id("next"),
+                By.id("idSIButton9"),
+                By.xpath(SignInButton)
+        );
     }
 
     // ------------- ELEMENT GETTERS WITH ALLURE LOGGING ------------- //
@@ -117,13 +155,13 @@ public class LoginPage extends Pages {
     @Step("Get password field")
     public WebElement getPasswordField() {
         Allure.step("Locating Password field");
-        return wait.untilElementVisible(LocatorsType.ByID, PasswordField);
+        return passwordField();
     }
 
     @Step("Get email field")
     public WebElement getEmailField() {
         Allure.step("Locating Email field");
-        return wait.untilElementVisible(LocatorsType.ByID, EmailField);
+        return emailField();
     }
 
     @Step("Get Sign-In button")
