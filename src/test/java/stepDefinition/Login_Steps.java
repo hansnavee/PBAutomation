@@ -20,6 +20,20 @@ public class Login_Steps extends Base_Steps{
     private final AdministratorPage adminPage = pages.getAdministratorPage();
     private Map<String, String> user;
 
+    private static String value(Map<String, String> user, String key) {
+        if (user == null || user.get(key) == null) {
+            return "";
+        }
+        return user.get(key).trim();
+    }
+
+    private static void requireCredentials(String role, String username, String password) {
+        if (username.isEmpty() || password.isEmpty()) {
+            Assert.fail("Missing email or password for role '" + role
+                    + "'. Set PB_PASSWORD and the email for that environment in config.");
+        }
+    }
+
     // ====================================================
     //                LOGIN STEPS
     // ====================================================
@@ -27,22 +41,28 @@ public class Login_Steps extends Base_Steps{
     @Given("I login with {string}")
     public void iLoginWith(String role) {
         user = XMLFileUtility.getUsers(role);
-        String username = user.get("Username");
-        String password = user.get("Password");
+        String username = value(user, "Username");
+        String password = value(user, "Password");
 
         StepActions.run("Logging in with Username: " + username,
-                () -> loginPage.loginWithValidCredentials(username, password)
+                () -> {
+                    requireCredentials(role, username, password);
+                    loginPage.loginWithValidCredentials(username, password);
+                }
         );
     }
 
     @Given("I login with pressing enter key {string}")
     public void iLoginWithEnterKey(String role) {
         user = XMLFileUtility.getUsers(role);
-        String username = user.get("Username");
-        String password = user.get("Password");
+        String username = value(user, "Username");
+        String password = value(user, "Password");
 
         StepActions.run("Logging in using Enter Key: " + username,
-                () -> loginPage.loginWithValidCredentialsAndEnterKey(username, password)
+                () -> {
+                    requireCredentials(role, username, password);
+                    loginPage.loginWithValidCredentialsAndEnterKey(username, password);
+                }
         );
     }
 

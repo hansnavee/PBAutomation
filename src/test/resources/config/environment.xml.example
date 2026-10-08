@@ -1,38 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copy to environment.local.xml (gitignored) or export the env vars below.
-  Env vars override both environment.xml and environment.local.xml.
+  Copy to environment.local.xml (gitignored). Emails differ by environment.
+  One shared password covers every role.
 
-  PB_URL
+  PB_PASSWORD          shared password
+  PB_URL               picks the environment whose URL matches
+  PB_ENV               or set this to test or stage
   PB_BROWSER
-  PB_OPERATOR_USERNAME / PB_OPERATOR_PASSWORD
-  PB_GUEST_USERNAME / PB_GUEST_PASSWORD
-  PB_ADMIN_USERNAME / PB_ADMIN_PASSWORD
-  PB_INVALID_USERNAME / PB_INVALID_PASSWORD
+
+  Leave a role Password tag out. PB_PASSWORD is used.
+  A role-specific PB_OPERATOR_PASSWORD still overrides the shared password.
 -->
 <Configuration>
     <BrowserName>Chrome</BrowserName>
-    <URL>https://test.pbweb.info/MicrosoftIdentity/Account/SignIn</URL>
-    <Users>
-        <User>
-            <Role>Operator User</Role>
-            <Username>${PB_OPERATOR_USERNAME}</Username>
-            <Password>${PB_OPERATOR_PASSWORD}</Password>
-        </User>
-        <User>
-            <Role>Guest User</Role>
-            <Username>${PB_GUEST_USERNAME}</Username>
-            <Password>${PB_GUEST_PASSWORD}</Password>
-        </User>
-        <User>
-            <Role>Admin User</Role>
-            <Username>${PB_ADMIN_USERNAME}</Username>
-            <Password>${PB_ADMIN_PASSWORD}</Password>
-        </User>
-        <User>
-            <Role>Invalid User</Role>
-            <Username>${PB_INVALID_USERNAME}</Username>
-            <Password>${PB_INVALID_PASSWORD}</Password>
-        </User>
-    </Users>
+    <Password>${PB_PASSWORD}</Password>
+    <Environments>
+        <Environment name="test">
+            <URL>https://test.pbweb.info/MicrosoftIdentity/Account/SignIn</URL>
+            <Users>
+                <User>
+                    <Role>Operator User</Role>
+                    <Username>operator-on-test@example.com</Username>
+                </User>
+                <User>
+                    <Role>Guest User</Role>
+                    <Username>guest-on-test@example.com</Username>
+                </User>
+                <User>
+                    <Role>Admin User</Role>
+                    <Username>admin-on-test@example.com</Username>
+                </User>
+                <User>
+                    <Role>Invalid User</Role>
+                    <Username>invalid-on-test@example.com</Username>
+                </User>
+            </Users>
+        </Environment>
+        <Environment name="stage">
+            <URL>https://stage.example.com/MicrosoftIdentity/Account/SignIn</URL>
+            <Users>
+                <User>
+                    <Role>Operator User</Role>
+                    <Username>operator-on-stage@example.com</Username>
+                </User>
+                <User>
+                    <Role>Guest User</Role>
+                    <Username>guest-on-stage@example.com</Username>
+                </User>
+                <User>
+                    <Role>Admin User</Role>
+                    <Username>admin-on-stage@example.com</Username>
+                </User>
+                <User>
+                    <Role>Invalid User</Role>
+                    <Username>invalid-on-stage@example.com</Username>
+                </User>
+            </Users>
+        </Environment>
+    </Environments>
 </Configuration>

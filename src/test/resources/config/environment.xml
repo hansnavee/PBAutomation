@@ -1,27 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <BrowserName>${PB_BROWSER}</BrowserName>
-    <URL>${PB_URL}</URL>
-    <Users>
-        <User>
-            <Role>Operator User</Role>
-            <Username>${PB_OPERATOR_USERNAME}</Username>
-            <Password>${PB_OPERATOR_PASSWORD}</Password>
-        </User>
-        <User>
-            <Role>Guest User</Role>
-            <Username>${PB_GUEST_USERNAME}</Username>
-            <Password>${PB_GUEST_PASSWORD}</Password>
-        </User>
-        <User>
-            <Role>Admin User</Role>
-            <Username>${PB_ADMIN_USERNAME}</Username>
-            <Password>${PB_ADMIN_PASSWORD}</Password>
-        </User>
-        <User>
-            <Role>Invalid User</Role>
-            <Username>${PB_INVALID_USERNAME}</Username>
-            <Password>${PB_INVALID_PASSWORD}</Password>
-        </User>
-    </Users>
+    <Password>${PB_PASSWORD}</Password>
+    <Environments>
+        <Environment name="test">
+            <URL>https://test.pbweb.info/MicrosoftIdentity/Account/SignIn</URL>
+            <Users>
+                <User>
+                    <Role>Operator User</Role>
+                    <Username>${PB_OPERATOR_USERNAME}</Username>
+                </User>
+                <User>
+                    <Role>Guest User</Role>
+                    <Username>${PB_GUEST_USERNAME}</Username>
+                </User>
+                <User>
+                    <Role>Admin User</Role>
+                    <Username>${PB_ADMIN_USERNAME}</Username>
+                </User>
+                <User>
+                    <Role>Invalid User</Role>
+                    <Username>${PB_INVALID_USERNAME}</Username>
+                </User>
+            </Users>
+        </Environment>
+        <Environment name="stage">
+            <URL>${PB_STAGE_URL}</URL>
+            <Users>
+                <User>
+                    <Role>Operator User</Role>
+                    <Username>${PB_STAGE_OPERATOR_USERNAME}</Username>
+                </User>
+                <User>
+                    <Role>Guest User</Role>
+                    <Username>${PB_STAGE_GUEST_USERNAME}</Username>
+                </User>
+                <User>
+                    <Role>Admin User</Role>
+                    <Username>${PB_STAGE_ADMIN_USERNAME}</Username>
+                </User>
+                <User>
+                    <Role>Invalid User</Role>
+                    <Username>${PB_STAGE_INVALID_USERNAME}</Username>
+                </User>
+            </Users>
+        </Environment>
+    </Environments>
 </Configuration>
